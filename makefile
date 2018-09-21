@@ -62,8 +62,7 @@ bin-exists != test -d bin; echo $$?
 # BECAUSE OBVIOUSLY IF YOU INDENT SOMETHING IT'S NOT MAKE ANYMORE IT'S SH
 .bin-dir:
 ifneq ($(bin-exists), 0)
-	# NOTE: use @ to shh sh. I mean to shush sh. I mean uh... >/dev/null.
-	@mkdir -p bin
+	mkdir -p bin
 endif
 
 # <target>: <dependencies>[; <recipe-0>] (\n\t<recipe-n>)...
