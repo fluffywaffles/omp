@@ -47,30 +47,47 @@
 
 # Which one does what it looks like? None of them! All of them! Make!
 # NOTE: $$? is necessary to escape the `$` in the shell variable `$?`.
-bin-exists != test -d bin; echo $$?
-# bin-exists := $$(test -d bin; echo $$?)
-# bin-exists := $(shell test -d bin; echo $$?)
-# bin-exists ::= $(shell test -d bin; echo $$?)
+target-directory-exists != test -d $(target-directory); echo $$?
+# target-directory-exists := $$(test -d bin; echo $$?)
+# target-directory-exists := $(shell test -d bin; echo $$?)
+# target-directory-exists ::= $(shell test -d bin; echo $$?)
 
 # NOTE: Adding an extra `$` also *escapes* obligation for monetary reward.
 # $$20 to the first person who figures out why this doesn't work!
-# .bin-dir:
-# 	ifneq ($(bin-exists), 0)
+# .target-directory-dir:
+# 	ifneq ($(target-directory-exists), 0)
 # 		mkdir -p bin
 # 	endif
 
 # BECAUSE OBVIOUSLY IF YOU INDENT SOMETHING IT'S NOT MAKE ANYMORE IT'S SH
-.bin-dir:
-ifneq ($(bin-exists), 0)
-	mkdir -p bin
+.create-target-directory:
+ifneq ($(target-directory-exists), 0)
+	mkdir -p $(target-directory)
 endif
+
+# Some actual configuration: flags and such
+cc      = clang
+ccflags = -fopenmp -o bin/$@
+compile = ${cc} ${ccflags}
+
+target-directory = bin
+
+# NOTE: run these rules before any compilation
+pre-rule-dependencies = .create-target-directory
+
+# By default, make everything
+all: hello-world pi
 
 # <target>: <dependencies>[; <recipe-0>] (\n\t<recipe-n>)...
 # The "target", accesible as $@, is the expected output
 # The "dependencies" are the files or other rules which must exist/be run
 # The "recipe" lines are individual commands to be run in a subshell
-hello-world: hello.c .bin-dir
-	clang -fopenmp -o bin/$@ hello.c
+# $< is the first prerequisite (in our case, conventionally the source)
+hello-world: hello.c $(pre-rule-dependencies)
+	${compile} $<
+
+pi: pi.c $(pre-rule-dependencies)
+	${compile} $<
 
 clean:
 	rm -rf bin
