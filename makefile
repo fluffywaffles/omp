@@ -43,14 +43,14 @@
 
 # NOTE: .PHONY means: the rule is not associated with an output file.
 # PHONYs be trippin' all up in this game. They don't MAKE output, man.
-.PHONY: clean .bin-dir
+.PHONY: clean .create-target-directory
 
 # Which one does what it looks like? None of them! All of them! Make!
 # NOTE: $$? is necessary to escape the `$` in the shell variable `$?`.
 target-directory-exists != test -d $(target-directory); echo $$?
-# target-directory-exists := $$(test -d bin; echo $$?)
-# target-directory-exists := $(shell test -d bin; echo $$?)
-# target-directory-exists ::= $(shell test -d bin; echo $$?)
+# target-directory-exists := $$(test -d $(target-directory); echo $$?)
+# target-directory-exists := $(shell test -d $(target-directory); echo $$?)
+# target-directory-exists ::= $(shell test -d $(target-directory); echo $$?)
 
 # NOTE: Adding an extra `$` also *escapes* obligation for monetary reward.
 # $$20 to the first person who figures out why this doesn't work!
