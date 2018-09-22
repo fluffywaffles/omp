@@ -67,26 +67,39 @@ endif
 
 # Some actual configuration: flags and such
 cc      = clang
-ccflags = -fopenmp -o bin/$@
+ccflags = -o bin/$@
 compile = ${cc} ${ccflags}
+omp     = -fopenmp
 
 target-directory = bin
-
 # NOTE: run these rules before any compilation
 pre-rule-dependencies = .create-target-directory
 
+# NOTE: get the L1 cache size in Linux
+# Assume it is 64, which is the default for most x86_64 systems.
+can-getconf           != which getconf; echo $$?
+can-get-L1-cache-size != getconf LEVEL1_DCACHE_LINESIZE; echo $$?
+L1-cache-size         ?= 64
+ifeq ($(can-getconf), 0)
+ifeq ($(can-get-L1-cache-size), 0)
+L1-cache-size != getconf LEVEL1_DCACHE_LINESIZE
+endif
+endif
+
 # By default, make everything
-all: hello-world pi
+all: cpuid hello-world pi
 
 # <target>: <dependencies>[; <recipe-0>] (\n\t<recipe-n>)...
 # The "target", accesible as $@, is the expected output
 # The "dependencies" are the files or other rules which must exist/be run
 # The "recipe" lines are individual commands to be run in a subshell
-# $< is the first prerequisite (in our case, conventionally the source)
 hello-world: hello.c $(pre-rule-dependencies)
-	${compile} $<
+	${compile} ${omp} $<
 
 pi: pi.c $(pre-rule-dependencies)
+	${compile} ${omp} $<
+
+cpuid: cpuid.c $(pre-rule-dependencies)
 	${compile} $<
 
 clean:
