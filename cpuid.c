@@ -44,13 +44,16 @@ void print_vendor_id (void);
 void register_to_chars (unsigned int, char* result, int length);
 
 /**
- * Actual code.
+ * Test code.
  */
 int main () {
-  detect_support();
-  print_vendor_id();
+  if (!detect_support()) return -1;
+  if (parameters >= VENDOR_ID) print_vendor_id();
 }
 
+/**
+ * Library functions.
+ */
 void print_vendor_id () {
   get_cpuid(VENDOR_ID);
   /**
@@ -78,12 +81,12 @@ void register_to_chars (unsigned int exx, char* result, int length) {
 int detect_support () {
   highest_function_parameter();
   highest_extended_function_parameter();
-  return parameters > -1 ? 0 : -1;
+  return parameters > -1 ? 1 : 0;
 }
 
 int highest_function_parameter () {
   if (!get_cpuid(HIGHEST_FUNCTION_PARAMETER)) {
-    fprintf(stderr, "!!! cpuid is not supported by this processor\n");
+    fprintf(stderr, "✗ cpuid is not supported by this processor\n");
     return -1;
   } else {
     parameters = eax;
